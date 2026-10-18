@@ -1,2 +1,49 @@
-# Device-Battery-Levels
-Simple Omarchy plugin that shows the battery levels of your battery driven devices.
+# Device Battery Levels
+
+A theme-aware Omarchy bar widget that shows battery levels and charging status for compatible wireless mice, keyboards, and headphones.
+
+Click the horizontal battery icon to open a popup with separate **Mouse**, **Keyboard**, and **Headphones** sections. Each detected device shows its model, charge percentage, and status. The widget refreshes every two seconds and uses the active Omarchy theme colors.
+
+## Compatibility
+
+The widget reads battery information exposed by Linux in `/sys/class/power_supply`. It looks for supplies with `POWER_SUPPLY_TYPE=Battery`, then uses `udevadm` input-device properties to classify them as a mouse, keyboard, or headphones. Headphone detection uses a matching Linux sound device or a recognizable headphone or headset product name.
+
+A device is supported when its Linux driver exposes battery capacity and status through the power-supply interface and its input device is identifiable through udev. Support depends on the device, connection type, and Linux driver; not every wireless device or brand exposes battery information this way. Devices without exposed battery information will show as undetected.
+
+## Install
+
+After publishing this repository to GitHub, install it in Omarchy with:
+
+```sh
+omarchy plugin add https://github.com/OWNER/REPOSITORY.git --enable
+```
+
+Replace `OWNER/REPOSITORY` with this repository’s GitHub path. The plugin is enabled as a bar widget in the right section by default.
+
+To enable it later:
+
+```sh
+omarchy plugin enable device-battery-levels
+```
+
+## Requirements
+
+- Omarchy with shell plugin support
+- Linux `power_supply` battery entries for the device
+- `udevadm` and standard shell utilities (`grep`, `sed`, `head`, `tr`)
+
+No brand-specific utility or battery daemon is required.
+
+## Development / validation
+
+Validate the plugin manifest and layout with:
+
+```sh
+omarchy plugin validate .
+```
+
+The plugin entry point is `Battery.qml`; `battery-status.sh` reads and classifies available battery devices.
+
+## License
+
+This project is licensed under the [GNU General Public License v3.0 only](https://www.gnu.org/licenses/gpl-3.0.html); see [`LICENSE`](LICENSE) for the full terms. GPLv3 permits commercial and noncommercial use, copying, modification, and redistribution under its terms. Distributed modified versions must comply with GPLv3, including its source-code and license-notice requirements.
