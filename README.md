@@ -2,10 +2,7 @@
 
 A theme-aware Omarchy bar widget that shows battery levels and charging status for compatible wireless mice, keyboards, headphones, and laptop batteries.
 
-Click the horizontal battery icon to open a popup with sections for detected **Mouse**, **Keyboard**, **Headphones**, and **Laptop** batteries. Each detected device shows its model, charge percentage, and status. Sections are hidden when no battery of that type is available. The widget refreshes every two seconds and uses the active Omarchy theme colors.
-
-<img width="612" height="302" alt="screenshot-2026-10-19_02-48-30" src="https://github.com/user-attachments/assets/506e50da-1ab3-4576-b746-87621f7a15c4" />
-
+Click the horizontal battery icon to open a popup with **Left**, **Center**, and **Right** buttons for moving the widget between bar sections, plus sections for detected **Mouse**, **Keyboard**, **Headphones**, and **Laptop** batteries. Each detected device shows its model, charge percentage, and status. Device sections are hidden when no battery of that type is available. The widget refreshes every two seconds and uses the active Omarchy theme colors.
 
 ## Compatibility
 

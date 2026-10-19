@@ -15,9 +15,28 @@ BarWidget {
   property var headphonesBattery: ({ name: "", percent: -1, status: "" })
   property var laptopBattery: ({ name: "", percent: -1, status: "" })
   property bool popupOpen: false
+  readonly property string currentBarSection: {
+    var layout = root.bar && root.bar.layoutConfig ? root.bar.layoutConfig : ({})
+    var sections = ["left", "center", "right"]
+    for (var i = 0; i < sections.length; i++) {
+      var entries = layout[sections[i]] || []
+      if (!Array.isArray(entries)) continue
+      for (var j = 0; j < entries.length; j++) {
+        var entry = entries[j]
+        var entryId = typeof entry === "string" ? entry : (entry && entry.id ? String(entry.id) : "")
+        if (entryId === root.moduleName) return sections[i]
+      }
+    }
+    return ""
+  }
 
   function close() { popupOpen = false }
   function refreshBattery() { if (!batteryProc.running) batteryProc.running = true }
+  function moveToSection(section) {
+    if (["left", "center", "right"].indexOf(section) === -1 || section === currentBarSection) return
+    if (root.bar && typeof root.bar.run === "function")
+      root.bar.run("omarchy bar move " + root.moduleName + " --section " + section)
+  }
 
   Process {
     id: batteryProc
@@ -117,6 +136,41 @@ BarWidget {
         font.family: root.bar.fontFamily
         font.pixelSize: Style.font.title
         font.bold: true
+      }
+      Text {
+        text: "Bar position"
+        color: root.bar.barForeground
+        font.family: root.bar.fontFamily
+        font.pixelSize: Style.font.small
+        opacity: 0.75
+      }
+      Row {
+        spacing: Style.space(6)
+
+        Rectangle {
+          width: Style.space(86); height: Style.space(30)
+          radius: Style.cornerRadius
+          color: root.currentBarSection === "left" ? root.bar.barForeground : "transparent"
+          border.width: Style.space(1); border.color: root.bar.barForeground
+          Text { anchors.centerIn: parent; text: "Left"; color: root.currentBarSection === "left" ? root.bar.background : root.bar.barForeground; font.family: root.bar.fontFamily; font.pixelSize: Style.font.small }
+          MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.moveToSection("left") }
+        }
+        Rectangle {
+          width: Style.space(86); height: Style.space(30)
+          radius: Style.cornerRadius
+          color: root.currentBarSection === "center" ? root.bar.barForeground : "transparent"
+          border.width: Style.space(1); border.color: root.bar.barForeground
+          Text { anchors.centerIn: parent; text: "Center"; color: root.currentBarSection === "center" ? root.bar.background : root.bar.barForeground; font.family: root.bar.fontFamily; font.pixelSize: Style.font.small }
+          MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.moveToSection("center") }
+        }
+        Rectangle {
+          width: Style.space(86); height: Style.space(30)
+          radius: Style.cornerRadius
+          color: root.currentBarSection === "right" ? root.bar.barForeground : "transparent"
+          border.width: Style.space(1); border.color: root.bar.barForeground
+          Text { anchors.centerIn: parent; text: "Right"; color: root.currentBarSection === "right" ? root.bar.background : root.bar.barForeground; font.family: root.bar.fontFamily; font.pixelSize: Style.font.small }
+          MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.moveToSection("right") }
+        }
       }
       Column {
         visible: root.mouseBattery.percent >= 0
