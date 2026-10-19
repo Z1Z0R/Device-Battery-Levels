@@ -18,7 +18,7 @@ Install it in Omarchy with:
 omarchy plugin add https://github.com/Z1Z0R/Device-Battery-Levels.git --enable
 ```
 
-The plugin is enabled as a bar widget in the right section by default.
+The plugin is enabled as a bar widget and default location is on the right (when installing there will be a prompt to choose plugin location).
 
 To enable it later:
 
