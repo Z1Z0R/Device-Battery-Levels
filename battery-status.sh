@@ -6,17 +6,31 @@ normalize() {
 
 matches_device_props() {
   props=$1
+  event_hid_uniq=$2
+  event_hid_name=$3
+  event_hid_phys=$4
   event_serial=$(printf '%s\n' "$props" | sed -n 's/^ID_SERIAL_SHORT=//p' | head -n 1)
   event_model=$(printf '%s\n' "$props" | sed -n 's/^ID_MODEL=//p' | head -n 1)
   event_vendor=$(printf '%s\n' "$props" | sed -n 's/^ID_VENDOR=//p' | head -n 1)
 
-  if [ -n "$battery_serial" ] && [ -n "$event_serial" ]; then
-    [ "$battery_serial" = "$(normalize "$event_serial")" ]
-  elif [ -n "$battery_model" ] && [ "$battery_model" = "$(normalize "$event_model")" ]; then
-    [ -z "$battery_vendor" ] || [ -z "$event_vendor" ] || [ "$battery_vendor" = "$(normalize "$event_vendor")" ]
-  else
-    return 1
+  if [ -n "$battery_serial" ]; then
+    [ "$battery_serial" = "$(normalize "$event_serial")" ] && return 0
+    [ "$battery_serial" = "$(normalize "$event_hid_uniq")" ] && return 0
   fi
+
+  [ -n "$battery_phys" ] && [ "$battery_phys" = "$event_hid_phys" ] && return 0
+
+  [ -n "$battery_model" ] || return 1
+  event_model=$(normalize "$event_model")
+  event_hid_name=$(normalize "$event_hid_name")
+  model_matches=0
+  [ "$battery_model" = "$event_model" ] && model_matches=1
+  [ "$battery_model" = "$event_hid_name" ] && model_matches=1
+  if [ "${#battery_model}" -ge 4 ]; then
+    case "$event_hid_name" in *"$battery_model"*) model_matches=1 ;; esac
+  fi
+  [ "$model_matches" = 1 ] || return 1
+  [ -z "$battery_vendor" ] || [ -z "$event_vendor" ] || [ "$battery_vendor" = "$(normalize "$event_vendor")" ]
 }
 
 mouse_name=
@@ -44,6 +58,7 @@ for supply in /sys/class/power_supply/*; do
   name=$(printf '%s\n' "$supply_data" | sed -n 's/^POWER_SUPPLY_MODEL_NAME=//p' | head -n 1)
   manufacturer=$(printf '%s\n' "$supply_data" | sed -n 's/^POWER_SUPPLY_MANUFACTURER=//p' | head -n 1)
   serial=$(printf '%s\n' "$supply_data" | sed -n 's/^POWER_SUPPLY_SERIAL_NUMBER=//p' | head -n 1)
+  device_data=
   if [ -r "$supply/device/uevent" ]; then
     device_data=$(cat "$supply/device/uevent")
     [ -n "$serial" ] || serial=$(printf '%s\n' "$device_data" | sed -n 's/^HID_UNIQ=//p' | head -n 1)
@@ -53,6 +68,7 @@ for supply in /sys/class/power_supply/*; do
   battery_serial=$(normalize "$serial")
   battery_model=$(normalize "$name")
   battery_vendor=$(normalize "$manufacturer")
+  battery_phys=$(printf '%s\n' "$device_data" | sed -n 's/^HID_PHYS=//p' | head -n 1)
   has_mouse=0
   has_keyboard=0
   has_headphones=0
@@ -64,7 +80,10 @@ for supply in /sys/class/power_supply/*; do
   for event in /sys/class/input/event*; do
     [ -e "$event" ] || continue
     props=$(udevadm info -q property -p "$event" 2>/dev/null) || continue
-    matches_device_props "$props" || continue
+    event_hid_uniq=$(cat "$event/device/uniq" 2>/dev/null)
+    event_hid_name=$(cat "$event/device/name" 2>/dev/null)
+    event_hid_phys=$(cat "$event/device/phys" 2>/dev/null)
+    matches_device_props "$props" "$event_hid_uniq" "$event_hid_name" "$event_hid_phys" || continue
     printf '%s\n' "$props" | grep -qx 'ID_INPUT_MOUSE=1' && has_mouse=1
     printf '%s\n' "$props" | grep -qx 'ID_INPUT_KEYBOARD=1' && has_keyboard=1
   done
