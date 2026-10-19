@@ -12,13 +12,15 @@ A device is supported when its Linux driver exposes battery capacity and status 
 
 ## Install
 
-After publishing this repository to GitHub, install it in Omarchy with:
+Install it in Omarchy with:
 
 ```sh
 omarchy plugin add https://github.com/Z1Z0R/Device-Battery-Levels.git --enable
 ```
 
-To enable the plugin:
+The plugin is enabled as a bar widget in the right section by default.
+
+To enable it later:
 
 ```sh
 omarchy plugin enable device-battery-levels
