@@ -13,6 +13,7 @@ BarWidget {
   property var mouseBattery: ({ name: "", percent: -1, status: "" })
   property var keyboardBattery: ({ name: "", percent: -1, status: "" })
   property var headphonesBattery: ({ name: "", percent: -1, status: "" })
+  property var laptopBattery: ({ name: "", percent: -1, status: "" })
   property bool popupOpen: false
 
   function close() { popupOpen = false }
@@ -28,6 +29,7 @@ BarWidget {
         var mouse = { name: "", percent: -1, status: "" }
         var keyboard = { name: "", percent: -1, status: "" }
         var headphones = { name: "", percent: -1, status: "" }
+        var laptop = { name: "", percent: -1, status: "" }
         for (var i = 0; i < lines.length; i++) {
           var parts = lines[i].split("=")
           if (parts.length < 2) continue
@@ -40,13 +42,17 @@ BarWidget {
           else if (parts[0] === "HEADPHONES_NAME") headphones.name = parts.slice(1).join("=")
           else if (parts[0] === "HEADPHONES_CAPACITY") headphones.percent = parseInt(parts[1])
           else if (parts[0] === "HEADPHONES_STATUS") headphones.status = parts.slice(1).join("=").toLowerCase()
+          else if (parts[0] === "LAPTOP_NAME") laptop.name = parts.slice(1).join("=")
+          else if (parts[0] === "LAPTOP_CAPACITY") laptop.percent = parseInt(parts[1])
+          else if (parts[0] === "LAPTOP_STATUS") laptop.status = parts.slice(1).join("=").toLowerCase()
         }
         root.mouseBattery = mouse
         root.keyboardBattery = keyboard
         root.headphonesBattery = headphones
+        root.laptopBattery = laptop
       }
     }
-    onExited: function(code) { if (code !== 0) { root.mouseBattery = ({ name: "", percent: -1, status: "" }); root.keyboardBattery = ({ name: "", percent: -1, status: "" }); root.headphonesBattery = ({ name: "", percent: -1, status: "" }) } }
+    onExited: function(code) { if (code !== 0) { root.mouseBattery = ({ name: "", percent: -1, status: "" }); root.keyboardBattery = ({ name: "", percent: -1, status: "" }); root.headphonesBattery = ({ name: "", percent: -1, status: "" }); root.laptopBattery = ({ name: "", percent: -1, status: "" }) } }
   }
 
   Timer { interval: 2000; running: true; repeat: true; onTriggered: root.refreshBattery() }
@@ -87,7 +93,7 @@ BarWidget {
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
     onClicked: root.popupOpen = !root.popupOpen
-    onEntered: if (root.bar) root.bar.showTooltip(root, "Wireless device batteries")
+    onEntered: if (root.bar) root.bar.showTooltip(root, "Device batteries")
     onExited: if (root.bar) root.bar.hideTooltip(root)
   }
 
@@ -112,84 +118,36 @@ BarWidget {
         font.pixelSize: Style.font.title
         font.bold: true
       }
-      Text {
-        text: "Mouse"
-        color: root.bar.barForeground
-        font.family: root.bar.fontFamily
-        font.pixelSize: Style.font.body
-        font.bold: true
-      }
-      Text {
+      Column {
         visible: root.mouseBattery.percent >= 0
-        text: root.mouseBattery.name || "Wireless mouse"
-        color: root.bar.barForeground
-        font.family: root.bar.fontFamily
-        font.pixelSize: Style.font.small
-        opacity: 0.75
+        spacing: Style.space(3)
+        Text { text: "Mouse"; color: root.bar.barForeground; font.family: root.bar.fontFamily; font.pixelSize: Style.font.body; font.bold: true }
+        Text { text: root.mouseBattery.name || "Wireless mouse"; color: root.bar.barForeground; font.family: root.bar.fontFamily; font.pixelSize: Style.font.small; opacity: 0.75 }
+        Text { text: root.mouseBattery.percent + "% · " + (root.mouseBattery.status ? root.mouseBattery.status.charAt(0).toUpperCase() + root.mouseBattery.status.slice(1) : "Status unavailable"); color: root.bar.barForeground; font.family: root.bar.fontFamily; font.pixelSize: Style.font.body }
       }
-      Text {
-        text: root.mouseBattery.percent >= 0 ? root.mouseBattery.percent + "% · " + (root.mouseBattery.status ? root.mouseBattery.status.charAt(0).toUpperCase() + root.mouseBattery.status.slice(1) : "Status unavailable") : "No wireless mouse battery detected"
-        color: root.bar.barForeground
-        font.family: root.bar.fontFamily
-        font.pixelSize: Style.font.body
-      }
-      Rectangle {
-        width: column.width
-        height: 1
-        color: root.bar.barForeground
-        opacity: 0.15
-      }
-      Text {
-        text: "Keyboard"
-        color: root.bar.barForeground
-        font.family: root.bar.fontFamily
-        font.pixelSize: Style.font.body
-        font.bold: true
-      }
-      Text {
+      Column {
         visible: root.keyboardBattery.percent >= 0
-        text: root.keyboardBattery.name || "Wireless keyboard"
-        color: root.bar.barForeground
-        font.family: root.bar.fontFamily
-        font.pixelSize: Style.font.small
-        opacity: 0.75
+        spacing: Style.space(3)
+        Rectangle { visible: root.mouseBattery.percent >= 0; width: column.width; height: 1; color: root.bar.barForeground; opacity: 0.15 }
+        Text { text: "Keyboard"; color: root.bar.barForeground; font.family: root.bar.fontFamily; font.pixelSize: Style.font.body; font.bold: true }
+        Text { text: root.keyboardBattery.name || "Wireless keyboard"; color: root.bar.barForeground; font.family: root.bar.fontFamily; font.pixelSize: Style.font.small; opacity: 0.75 }
+        Text { width: column.width; wrapMode: Text.WordWrap; text: root.keyboardBattery.percent + "% · " + (root.keyboardBattery.status ? root.keyboardBattery.status.charAt(0).toUpperCase() + root.keyboardBattery.status.slice(1) : "Status unavailable"); color: root.bar.barForeground; font.family: root.bar.fontFamily; font.pixelSize: Style.font.body }
       }
-      Text {
-        text: root.keyboardBattery.percent >= 0 ? root.keyboardBattery.percent + "% · " + (root.keyboardBattery.status ? root.keyboardBattery.status.charAt(0).toUpperCase() + root.keyboardBattery.status.slice(1) : "Status unavailable") : "No wireless keyboard battery detected"
-        width: column.width
-        wrapMode: Text.WordWrap
-        color: root.bar.barForeground
-        font.family: root.bar.fontFamily
-        font.pixelSize: Style.font.body
-      }
-      Rectangle {
-        width: column.width
-        height: 1
-        color: root.bar.barForeground
-        opacity: 0.15
-      }
-      Text {
-        text: "Headphones"
-        color: root.bar.barForeground
-        font.family: root.bar.fontFamily
-        font.pixelSize: Style.font.body
-        font.bold: true
-      }
-      Text {
+      Column {
         visible: root.headphonesBattery.percent >= 0
-        text: root.headphonesBattery.name || "Wireless headphones"
-        color: root.bar.barForeground
-        font.family: root.bar.fontFamily
-        font.pixelSize: Style.font.small
-        opacity: 0.75
+        spacing: Style.space(3)
+        Rectangle { visible: root.mouseBattery.percent >= 0 || root.keyboardBattery.percent >= 0; width: column.width; height: 1; color: root.bar.barForeground; opacity: 0.15 }
+        Text { text: "Headphones"; color: root.bar.barForeground; font.family: root.bar.fontFamily; font.pixelSize: Style.font.body; font.bold: true }
+        Text { text: root.headphonesBattery.name || "Wireless headphones"; color: root.bar.barForeground; font.family: root.bar.fontFamily; font.pixelSize: Style.font.small; opacity: 0.75 }
+        Text { width: column.width; wrapMode: Text.WordWrap; text: root.headphonesBattery.percent + "% · " + (root.headphonesBattery.status ? root.headphonesBattery.status.charAt(0).toUpperCase() + root.headphonesBattery.status.slice(1) : "Status unavailable"); color: root.bar.barForeground; font.family: root.bar.fontFamily; font.pixelSize: Style.font.body }
       }
-      Text {
-        text: root.headphonesBattery.percent >= 0 ? root.headphonesBattery.percent + "% · " + (root.headphonesBattery.status ? root.headphonesBattery.status.charAt(0).toUpperCase() + root.headphonesBattery.status.slice(1) : "Status unavailable") : "No wireless headphones battery detected"
-        width: column.width
-        wrapMode: Text.WordWrap
-        color: root.bar.barForeground
-        font.family: root.bar.fontFamily
-        font.pixelSize: Style.font.body
+      Column {
+        visible: root.laptopBattery.percent >= 0
+        spacing: Style.space(3)
+        Rectangle { visible: root.mouseBattery.percent >= 0 || root.keyboardBattery.percent >= 0 || root.headphonesBattery.percent >= 0; width: column.width; height: 1; color: root.bar.barForeground; opacity: 0.15 }
+        Text { text: "Laptop"; color: root.bar.barForeground; font.family: root.bar.fontFamily; font.pixelSize: Style.font.body; font.bold: true }
+        Text { text: root.laptopBattery.name || "Computer battery"; color: root.bar.barForeground; font.family: root.bar.fontFamily; font.pixelSize: Style.font.small; opacity: 0.75 }
+        Text { text: root.laptopBattery.percent + "% · " + (root.laptopBattery.status ? root.laptopBattery.status.charAt(0).toUpperCase() + root.laptopBattery.status.slice(1) : "Status unavailable"); color: root.bar.barForeground; font.family: root.bar.fontFamily; font.pixelSize: Style.font.body }
       }
     }
   }

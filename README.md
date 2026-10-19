@@ -1,14 +1,14 @@
 # Device Battery Levels
 
-A theme-aware Omarchy bar widget that shows battery levels and charging status for compatible wireless mice, keyboards, and headphones.
+A theme-aware Omarchy bar widget that shows battery levels and charging status for compatible wireless mice, keyboards, headphones, and laptop batteries.
 
-Click the horizontal battery icon to open a popup with separate **Mouse**, **Keyboard**, and **Headphones** sections. Each detected device shows its model, charge percentage, and status. The widget refreshes every two seconds and uses the active Omarchy theme colors.
+Click the horizontal battery icon to open a popup with sections for detected **Mouse**, **Keyboard**, **Headphones**, and **Laptop** batteries. Each detected device shows its model, charge percentage, and status. Sections are hidden when no battery of that type is available. The widget refreshes every two seconds and uses the active Omarchy theme colors.
 
 ## Compatibility
 
-The widget reads battery information exposed by Linux in `/sys/class/power_supply`. It looks for supplies with `POWER_SUPPLY_TYPE=Battery`, then uses `udevadm` input-device properties to classify them as a mouse, keyboard, or headphones. Headphone detection uses a matching Linux sound device or a recognizable headphone or headset product name.
+The widget reads battery information exposed by Linux in `/sys/class/power_supply`. It looks for supplies with `POWER_SUPPLY_TYPE=Battery`, then uses `udevadm` input-device properties to classify them as a mouse, keyboard, or headphones. Headphone detection uses a matching Linux sound device or a recognizable headphone or headset product name. System-scoped supplies and common laptop battery device names are classified as the laptop battery.
 
-A device is supported when its Linux driver exposes battery capacity and status through the power-supply interface and its input device is identifiable through udev. Support depends on the device, connection type, and Linux driver; not every wireless device or brand exposes battery information this way. Devices without exposed battery information will show as undetected.
+A device is supported when its Linux driver exposes battery capacity and status through the power-supply interface and its input device is identifiable through udev. Support depends on the device, connection type, and Linux driver; not every wireless device or brand exposes battery information this way. Sections for devices without an exposed battery reading are hidden.
 
 ## Install
 

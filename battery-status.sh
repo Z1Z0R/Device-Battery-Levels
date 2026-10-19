@@ -31,6 +31,9 @@ headphones_name=
 headphones_capacity=-1
 headphones_status=Unknown
 headphones_online=0
+laptop_name=
+laptop_capacity=-1
+laptop_status=Unknown
 
 for supply in /sys/class/power_supply/*; do
   [ -r "$supply/uevent" ] || continue
@@ -76,6 +79,12 @@ for supply in /sys/class/power_supply/*; do
   if [ "$has_headphones" = 1 ]; then kind=headphones
   elif [ "$has_mouse" = 1 ]; then kind=mouse
   elif [ "$has_keyboard" = 1 ]; then kind=keyboard
+  else
+    supply_basename=$(basename "$supply")
+    scope=$(printf '%s\n' "$supply_data" | sed -n 's/^POWER_SUPPLY_SCOPE=//p' | head -n 1)
+    case "$scope:$supply_basename" in
+      System:*|*:BAT[0-9]*|*:battery|*:macsmc-battery) kind=laptop ;;
+    esac
   fi
   [ -n "$kind" ] || continue
 
@@ -98,15 +107,19 @@ for supply in /sys/class/power_supply/*; do
       keyboard_status=${status:-Unknown}
       keyboard_online=${online:-0}
     fi
-  else
+  elif [ "$kind" = headphones ]; then
     if [ "$headphones_capacity" = -1 ] || { [ "$online" = 1 ] && [ "$headphones_online" != 1 ]; } || { [ "$online" = "$headphones_online" ] && [ "$status" = Charging ] && [ "$headphones_status" != Charging ]; }; then
       headphones_name=$name
       headphones_capacity=${capacity:--1}
       headphones_status=${status:-Unknown}
       headphones_online=${online:-0}
     fi
+  else
+    laptop_name=$name
+    laptop_capacity=${capacity:--1}
+    laptop_status=${status:-Unknown}
   fi
 done
 
-printf 'MOUSE_NAME=%s\nMOUSE_CAPACITY=%s\nMOUSE_STATUS=%s\nKEYBOARD_NAME=%s\nKEYBOARD_CAPACITY=%s\nKEYBOARD_STATUS=%s\nHEADPHONES_NAME=%s\nHEADPHONES_CAPACITY=%s\nHEADPHONES_STATUS=%s\n' \
-  "$mouse_name" "$mouse_capacity" "$mouse_status" "$keyboard_name" "$keyboard_capacity" "$keyboard_status" "$headphones_name" "$headphones_capacity" "$headphones_status"
+printf 'MOUSE_NAME=%s\nMOUSE_CAPACITY=%s\nMOUSE_STATUS=%s\nKEYBOARD_NAME=%s\nKEYBOARD_CAPACITY=%s\nKEYBOARD_STATUS=%s\nHEADPHONES_NAME=%s\nHEADPHONES_CAPACITY=%s\nHEADPHONES_STATUS=%s\nLAPTOP_NAME=%s\nLAPTOP_CAPACITY=%s\nLAPTOP_STATUS=%s\n' \
+  "$mouse_name" "$mouse_capacity" "$mouse_status" "$keyboard_name" "$keyboard_capacity" "$keyboard_status" "$headphones_name" "$headphones_capacity" "$headphones_status" "$laptop_name" "$laptop_capacity" "$laptop_status"
