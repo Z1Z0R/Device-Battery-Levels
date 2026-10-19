@@ -4,6 +4,9 @@ A theme-aware Omarchy bar widget that shows battery levels and charging status f
 
 Click the horizontal battery icon to open a popup with sections for detected **Mouse**, **Keyboard**, **Headphones**, and **Laptop** batteries. Each detected device shows its model, charge percentage, and status. Sections are hidden when no battery of that type is available. The widget refreshes every two seconds and uses the active Omarchy theme colors.
 
+<img width="612" height="302" alt="screenshot-2026-10-19_02-48-30" src="https://github.com/user-attachments/assets/506e50da-1ab3-4576-b746-87621f7a15c4" />
+
+
 ## Compatibility
 
 The widget reads battery information exposed by Linux in `/sys/class/power_supply`. It looks for supplies with `POWER_SUPPLY_TYPE=Battery`, then uses `udevadm` input-device properties to classify them as a mouse, keyboard, or headphones. Headphone detection uses a matching Linux sound device or a recognizable headphone or headset product name. System-scoped supplies and common laptop battery device names are classified as the laptop battery.
