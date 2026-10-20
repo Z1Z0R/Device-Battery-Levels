@@ -29,6 +29,12 @@ To enable it later:
 omarchy plugin enable device-battery-levels
 ```
 
+Uninstall it in Omarchy with:
+
+```sh
+omarchy plugin remove device-battery-levels
+```
+
 ## Requirements
 
 - Omarchy with shell plugin support
