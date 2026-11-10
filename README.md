@@ -55,4 +55,4 @@ The plugin entry point is `Battery.qml`; `battery-status.sh` reads and classifie
 
 ## License
 
-This project is licensed under the [GNU General Public License v3.0 only](https://www.gnu.org/licenses/gpl-3.0.html); see [`LICENSE`](LICENSE) for the full terms. GPLv3 permits commercial and noncommercial use, copying, modification, and redistribution under its terms. Distributed modified versions must comply with GPLv3, including its source-code and license-notice requirements.
+This project is licensed under the [MIT License](https://opensource.org/license/mit); see [`LICENSE`](LICENSE) for the full text. The MIT License permits use, modification, and redistribution, including for commercial purposes, provided the copyright and license notices are retained. The software is provided without warranty.
